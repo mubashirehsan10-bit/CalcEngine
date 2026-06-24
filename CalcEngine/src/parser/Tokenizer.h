@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
+#include<cctype>
 using namespace std;
 
 enum class TokenType {
+    NONE,
     NUMBER,
     VARIABLE,
     OPERATOR,
