@@ -1,8 +1,9 @@
 #pragma once
 #include<string>
+#include "Tokenizer.h"
 using namespace std;
 
-class ASTNode {
+class ASTNode { // The class to handle order of calculation like trees in DSA
 public:
 	string value;
 	ASTNode* left;
@@ -10,14 +11,17 @@ public:
 
 	ASTNode(string value);
 
-}
+};
 
-class Parser{
+class Parser { // - The class to impliment BODMAS Rule
 private:
-	string input;
+	vector<Token> token;
 	int pos;
+	ASTNode* parseExpression(); //— handles + and -(lowest precedence)
+	ASTNode* parseTerm(); // — handles * and /
+	ASTNode* parsePower(); // — handles ^
+	ASTNode* parsePrimary(); // — handles numbers, variables, functions, parentheses(highest precedence)
 public:
-	Parser(string input);
+	Parser(vector<Token> t);
 	ASTNode* parse();
-	
-}
+};

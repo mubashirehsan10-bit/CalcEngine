@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\parser\Parser.cpp" />
     <ClCompile Include="src\parser\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
