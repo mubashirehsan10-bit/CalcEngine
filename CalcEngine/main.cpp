@@ -21,8 +21,18 @@ int main()
         cout << x.value << "\n";
     }
 
+    Parser parse(arr);
 
+    ASTNode* root = parse.parse();
 
+    if (root == nullptr) {
+        cout << "root is null" << endl;
+    }
+    else {
+        cout << "Value:" << root->value << endl;
+        if (root->left) cout << "Left: " << root->left->value << endl;
+        if (root->right) cout << "Right: " << root->right->value << endl;
+    }
 
     cout << "Equation : " << equation;
 
