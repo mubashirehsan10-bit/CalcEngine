@@ -53,7 +53,7 @@ vector<Token> Tokenizer::tokenize()
 			type = TokenType::VARIABLE;
 			tokens.push_back(Token(type, string(1, c))); // get the variable name
 		}
-		else if (c == 's' or c == 'c' or c == 't' or c == 'l') { // sin, cos, tan, log
+		else if (c == 's' or c == 'c' or c == 't' or c == 'l' or c == 'a') { // sin, cos, tan, log
 			type = TokenType::FUNCTION;
 
 			while(pos<input.length() && isalpha(input[pos])) { // get the whole function name

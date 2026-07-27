@@ -16,6 +16,7 @@ public:
 class Parser { // - The class to impliment BODMAS Rule
 private:
 	vector<Token> token;
+	bool isValidFunction(string name);
 	int pos;
 	ASTNode* parseExpression(); //— handles + and -(lowest precedence)
 	ASTNode* parseTerm(); // — handles * and /

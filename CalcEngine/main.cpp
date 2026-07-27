@@ -1,5 +1,6 @@
 #include "src/parser/Tokenizer.h"
 #include "src/parser/Parser.h"
+#include "src/calculus/Evaluator.h"
 #include<iostream>;
 using namespace std;
 
@@ -7,7 +8,7 @@ int main()
 {
     string equation;
     cout << "Enter the Equataion: \n";
-    cout << " f = ";
+    cout << " f(x) = ";
 
     getline(cin, equation);
 
@@ -16,25 +17,27 @@ int main()
 
     vector<Token> arr = t.tokenize();
 
-    for (Token x : arr)
+   /* for (Token x : arr)
     {
         cout << x.value << "\n";
+    }*/
+
+    try {
+        Parser parse(arr);
+
+        ASTNode* root = parse.parse();
+
+        cout << "For what avalue of x do u wanna calculate: ";
+        double x; cin >> x;
+
+        Evaluator rslt(root, x);
+
+        cout << "ANSWER : " << rslt.Result();
     }
-
-    Parser parse(arr);
-
-    ASTNode* root = parse.parse();
-
-    if (root == nullptr) {
-        cout << "root is null" << endl;
+    catch (const char* c)
+    {
+        cerr << "Error!! " << c << endl;
     }
-    else {
-        cout << "Value:" << root->value << endl;
-        if (root->left) cout << "Left: " << root->left->value << endl;
-        if (root->right) cout << "Right: " << root->right->value << endl;
-    }
-
-    cout << "Equation : " << equation;
 
     
 }

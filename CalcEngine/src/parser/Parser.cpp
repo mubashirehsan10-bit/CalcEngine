@@ -119,6 +119,9 @@ ASTNode* Parser::parsePrimary() // — handles numbers, variables, functions, pare
 	}
 	else if (token[pos].type == TokenType::FUNCTION)
 	{
+		if (!isValidFunction(token[pos].value))
+			throw "Undefined term/terms are used in equation\n"; // Exception thrown
+
 		ASTNode* node = new ASTNode(token[pos].value); // "sin", "cos", whatever
 		pos++; // skip function name
 		pos++; // skip (
@@ -134,4 +137,21 @@ ASTNode* Parser::parsePrimary() // — handles numbers, variables, functions, pare
 	
 
 
+}
+bool Parser::isValidFunction(string name) 
+{
+
+	vector<string> valid = {
+		"sin", "cos", "tan",
+		"asin", "acos", "atan",
+		"sinh", "cosh", "tanh",
+		"asinh", "acosh", "atanh",
+		"ln", "log", "sqrt"
+	};
+
+	for (string s : valid) {
+		if (s == name) return true;
+	}
+
+	return false;
 }

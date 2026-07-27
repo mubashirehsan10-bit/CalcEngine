@@ -28,6 +28,7 @@ private:
     int pos;
 
 public:
+    // 2x= 2*x case left
     Tokenizer(string input);
     vector<Token> tokenize();
 };

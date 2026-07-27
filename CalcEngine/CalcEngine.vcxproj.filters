@@ -24,12 +24,18 @@
     <ClCompile Include="src\parser\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\calculus\Evaluator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\parser\Tokenizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\parser\Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\calculus\Evaluator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
