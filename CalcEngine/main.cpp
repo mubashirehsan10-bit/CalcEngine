@@ -1,6 +1,7 @@
 #include "src/parser/Tokenizer.h"
 #include "src/parser/Parser.h"
 #include "src/calculus/Evaluator.h"
+#include "src/calculus/Limits.h"
 #include<iostream>;
 using namespace std;
 
@@ -17,11 +18,6 @@ int main()
 
     vector<Token> arr = t.tokenize();
 
-   /* for (Token x : arr)
-    {
-        cout << x.value << "\n";
-    }*/
-
     try {
         Parser parse(arr);
 
@@ -30,14 +26,27 @@ int main()
         cout << "For what avalue of x do u wanna calculate: ";
         double x; cin >> x;
 
-        Evaluator rslt(root, x);
+        Limit rslt(root, x);
 
-        cout << "ANSWER : " << rslt.Result();
+        if (rslt.Existance()) {
+            cout << "The limit exists at x = " << x << endl;
+
+            cout << "The limit at x = " << x << " is " << rslt.value() << endl;
+
+        }
+        else
+            cout << "The limit doesn't exists at x = " << x << endl;
+
+
+
+
     }
     catch (const char* c)
     {
         cerr << "Error!! " << c << endl;
     }
+
+
 
     
 }
