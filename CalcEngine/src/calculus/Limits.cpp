@@ -20,5 +20,8 @@ bool Limit::Existance()
 }
 double Limit::value()
 {
-	return limit_calc(node, x);
+	
+	double h = 0.0001;
+	return (limit_calc(node, x - h) + limit_calc(node, x + h)) / 2.0; // the limit is very close to x but not x
+	
 }
