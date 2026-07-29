@@ -1,6 +1,13 @@
 #pragma once
+#include "Limits.h"
 
-class Differentiate
+class TangentToCurve
 {
+	double x;
+	ASTNode* node;
+public:
+	TangentToCurve(ASTNode* ast, double x);
+	//ASTNode* Derivative();  Gives Expression -> Next Phase
+	double Slope();
 
 };
