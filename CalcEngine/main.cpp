@@ -2,6 +2,7 @@
 #include "src/parser/Parser.h"
 #include "src/calculus/Evaluator.h"
 #include "src/calculus/Limits.h"
+#include "src/calculus/Differentiator.h"
 #include<iostream>;
 using namespace std;
 
@@ -26,19 +27,9 @@ int main()
         cout << "For what avalue of x do u wanna calculate: ";
         double x; cin >> x;
 
-        Limit rslt(root, x);
+        TangentToCurve rslt(root, x);
 
-        if (rslt.Existance()) {
-            cout << "The limit exists at x = " << x << endl;
-
-            cout << "The limit at x = " << x << " is " << rslt.value() << endl;
-
-        }
-        else
-            cout << "The limit doesn't exists at x = " << x << endl;
-
-
-
+        cout << "Tangent to the curve: " << equation << " is " << rslt.Slope();
 
     }
     catch (const char* c)

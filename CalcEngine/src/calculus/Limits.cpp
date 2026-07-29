@@ -16,7 +16,7 @@ bool Limit::Existance()
 	double h = 0.0001;
 	double left_limit = limit_calc(node, x - h);
 	double right_limit = limit_calc(node, x + h);
-	return abs(left_limit - right_limit) < 0.001;
+	return abs(left_limit - right_limit) < 0.01;;
 }
 double Limit::value()
 {

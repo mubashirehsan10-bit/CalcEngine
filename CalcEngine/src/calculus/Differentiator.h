@@ -7,7 +7,7 @@ class TangentToCurve
 	ASTNode* node;
 public:
 	TangentToCurve(ASTNode* ast, double x);
-	//ASTNode* Derivative();  Gives Expression -> Next Phase
+	//ASTNode* Derivative();  Gives Expression -> Next Phase // Symbolic method
 	double Slope();
 
 };

@@ -33,6 +33,9 @@
     <ClCompile Include="src\calculus\Differentiator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\calculus\Integrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\parser\Tokenizer.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\calculus\Differentiator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\calculus\Integrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

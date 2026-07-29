@@ -126,6 +126,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\calculus\Differentiator.cpp" />
     <ClCompile Include="src\calculus\Evaluator.cpp" />
+    <ClCompile Include="src\calculus\Integrator.cpp" />
     <ClCompile Include="src\calculus\Limits.cpp" />
     <ClCompile Include="src\parser\Parser.cpp" />
     <ClCompile Include="src\parser\Tokenizer.cpp" />
@@ -133,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="src\calculus\Differentiator.h" />
     <ClInclude Include="src\calculus\Evaluator.h" />
+    <ClInclude Include="src\calculus\Integrator.h" />
     <ClInclude Include="src\calculus\Limits.h" />
     <ClInclude Include="src\parser\Parser.h" />
     <ClInclude Include="src\parser\Tokenizer.h" />
