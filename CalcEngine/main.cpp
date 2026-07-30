@@ -3,6 +3,8 @@
 #include "src/calculus/Evaluator.h"
 #include "src/calculus/Limits.h"
 #include "src/calculus/Differentiator.h"
+#include "src/calculus/Integrator.h"
+
 #include<iostream>;
 using namespace std;
 
@@ -24,12 +26,16 @@ int main()
 
         ASTNode* root = parse.parse();
 
-        cout << "For what avalue of x do u wanna calculate: ";
+        cout << "Lower Limit: ";
+
         double x; cin >> x;
 
-        TangentToCurve rslt(root, x);
+        cout << "Upper Limit:";
+        double y; cin >> y;
 
-        cout << "Tangent to the curve: " << equation << " is " << rslt.Slope();
+        Area rslt(root,x,y);
+
+        cout << "Tangent to the curve: " << equation << " is " << rslt.AreaUnderCurve();
 
     }
     catch (const char* c)
