@@ -72,10 +72,38 @@ ASTNode* TangentToCurve::productRule(ASTNode* node) // d/dx (x*y) = d/dx(x) * y 
 	return expression;
 
 }
-//ASTNode* TangentToCurve::chainRule(ASTNode* node)
-//{
-//
-//}
+ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno functions
+{
+	// no right node val for trigno and algo funs
+	if (node->value == "sin")
+	{
+		ASTNode* cosNode = new ASTNode("cos");
+		cosNode->left = node->left;          // keep same argument
+
+		ASTNode* result = new ASTNode("*");
+		result->left = cosNode;              // cos(g(x))
+		result->right = Differentiate(node->left); // g'(x)
+		return result;
+	}
+
+	else if (node->value == "cos")
+	{
+		ASTNode* sinNode = new ASTNode("sin");
+		sinNode->left = node->left;
+
+		ASTNode* neg = new ASTNode("*");
+		neg->left = new ASTNode("-1");
+		neg->right = sinNode;
+
+		ASTNode* result = new ASTNode("*");
+		result->left = neg;
+		result->right = Differentiate(node->left);
+		return result;
+	}
+
+	
+
+}
 
 
 double TangentToCurve::Slope()

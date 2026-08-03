@@ -18,7 +18,7 @@ double Evaluator::evaluate(ASTNode* node)
     if (node == nullptr)
         return 0;
 
-    if (isdigit(node->value[0]))
+    if (isdigit(node->value[0]) || (node->value[0] == '-' && node->value.length() > 1))
         return stod(node->value);
 
     if (node->value == "x")
