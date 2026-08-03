@@ -26,21 +26,14 @@ int main()
 
         ASTNode* root = parse.parse();
 
-        cout << "Lower Limit: ";
-
-        double x; cin >> x;
-
-        cout << "Upper Limit:";
-        double y; cin >> y;
-
-        Area rslt(root,x,y);
-
-        cout << "Tangent to the curve: " << equation << " is " << rslt.AreaUnderCurve();
-
+        TangentToCurve diff(root, 0); // x value doesn't matter for symbolic
+        ASTNode* derivative = diff.Derivative();
+        Evaluator eval(derivative, 3); // evaluate derivative at x=3
+        cout << "Derivative at x=3: " << eval.Result();
     }
     catch (const char* c)
     {
-        cerr << "Error!! " << c << endl;
+        cerr << "\033[31m" << "Error!" << "\033[0m" << c << endl;
     }
 
 
