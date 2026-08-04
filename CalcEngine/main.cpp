@@ -28,8 +28,8 @@ int main()
 
         TangentToCurve diff(root, 0); // x value doesn't matter for symbolic
         ASTNode* derivative = diff.Derivative();
-        Evaluator eval(derivative, 3); // evaluate derivative at x=3
-        cout << "Derivative at x=3: " << eval.Result();
+        Evaluator eval(derivative, 1); // evaluate derivative at x=3
+        cout << "Derivative at x=1: " << eval.Result();
     }
     catch (const char* c)
     {
