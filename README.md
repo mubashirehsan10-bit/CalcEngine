@@ -116,6 +116,8 @@ lim(x→1) (x^2-1)/(x-1) = 2.0000
 - **IDE:** Visual Studio Community 2022
 - **Libraries:** `<cmath>`, `<string>`, `<vector>` — standard only
 - **Paradigm:** OOP — classes, encapsulation, recursion, dynamic memory
+- **Paradigm:** DSA — Trees, Recursion, Linked-Lists 
+
 
 ---
 
