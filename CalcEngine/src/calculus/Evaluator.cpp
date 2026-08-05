@@ -2,6 +2,7 @@
 #include<iostream>
 #include<cctype>
 #include<cmath>
+#include <corecrt_math_defines.h>
 using namespace std;
 
 Evaluator::Evaluator(ASTNode* ast, double x) //construct
@@ -38,6 +39,10 @@ double Evaluator::evaluate(ASTNode* node)
     if (node->value == "^")
         return pow(left, right);
 
+
+    // exponential
+    if (node->value == "e") return M_E; // exponent value
+
     // trig
     if (node->value == "sin")  return sin(evaluate(node->left));
     if (node->value == "cos")  return cos(evaluate(node->left));
@@ -45,8 +50,6 @@ double Evaluator::evaluate(ASTNode* node)
     if (node->value == "cosec" or node->value == "csc")  return 1.0 / sin(evaluate(node->left));
     if (node->value == "sec")  return 1.0 / cos(evaluate(node->left));
     if (node->value == "cot")  return 1.0 / tan(evaluate(node->left));
-
-
 
     // inverse trig
     if (node->value == "asin") return asin(evaluate(node->left));
@@ -76,5 +79,6 @@ double Evaluator::evaluate(ASTNode* node)
     if (node->value == "ln")   return log(evaluate(node->left));
     if (node->value == "log")  return log10(evaluate(node->left));
     if (node->value == "sqrt") return sqrt(evaluate(node->left));
+
    
 }

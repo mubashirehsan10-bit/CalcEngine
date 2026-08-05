@@ -146,7 +146,7 @@ bool Parser::isValidFunction(string name)
 		"asin", "acos", "atan",
 		"sinh", "cosh", "tanh",
 		"asinh", "acosh", "atanh",
-		"ln", "log", "sqrt"
+		"ln", "log", "sqrt" , "e"
 	};
 
 	for (string s : valid) {

@@ -49,11 +49,11 @@ vector<Token> Tokenizer::tokenize()
 			type = TokenType::RPAREN;
 			tokens.push_back(Token(type, string(1, c))); // get the parenthesis
 		}
-		else if (c == 'x' or c == 'y' or c == 'z') { // 3 dimensions
+		else if (c == 'x' or c == 'y' or c == 'z' ) { // 3 dimensions
 			type = TokenType::VARIABLE;
 			tokens.push_back(Token(type, string(1, c))); // get the variable name
 		}
-		else if (c == 's' or c == 'c' or c == 't' or c == 'l' or c == 'a') { // sin, cos, tan, log
+		else if (c == 's' or c == 'c' or c == 't' or c == 'l' or c == 'a') { // sin, cos, tan, log & e
 			type = TokenType::FUNCTION;
 
 			while(pos<input.length() && isalpha(input[pos])) { // get the whole function name
@@ -62,6 +62,11 @@ vector<Token> Tokenizer::tokenize()
 			}
 			
 			tokens.push_back(Token(type, temp)); // get the function name
+			continue;
+		}
+		else if (c == 'e' && (pos + 1 >= input.length() || !isalpha(input[pos + 1]))) {
+			tokens.push_back(Token(TokenType::NUMBER, "e"));
+			pos++;
 			continue;
 		}
 		else {

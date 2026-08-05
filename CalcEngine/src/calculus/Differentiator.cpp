@@ -39,10 +39,24 @@ ASTNode* TangentToCurve::Differentiate(ASTNode* node) // Base funtion to get
 
 ASTNode* TangentToCurve::powerRule(ASTNode* node) // ---> x^n <---
 {
+	if (!isdigit(node->right->value[0])) {
+		// variable is in exponent, not base
+		// d/dx e^x = e^x * ln(e) = e^x
+		ASTNode* result = new ASTNode("^");
+		result->left = node->left;
+		result->right = node->right;
+		ASTNode* chain = new ASTNode("*");
+		chain->left = result;
+		chain->right = Differentiate(node->right);
+		return chain;
+	}
+
 	ASTNode* expression = new ASTNode("*");
 	ASTNode* power = new ASTNode("^");
 	power->left = node->left;                                          // x
-	power->right = new ASTNode(to_string(stod(node->right->value) - 1)); // 1
+	double val = stod(node->right->value) - 1;
+	string expStr = (val == floor(val)) ? to_string((int)val) : to_string(val); // to round of if num is whole num
+	power->right = new ASTNode(expStr); // 1
 	expression->left = node->right;                                    // 2
 	expression->right = power;
 	return expression;
@@ -74,6 +88,7 @@ ASTNode* TangentToCurve::productRule(ASTNode* node) // d/dx (x*y) = d/dx(x) * y 
 	return expression;
 
 }
+
 ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno functions
 {
 	// no right node val for trigno and algo funs
@@ -431,7 +446,17 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 
 
 	}
-
+	else if (node->left->value == "e") {
+		// d/dx e^x = e^x * ln(a) where a=e, ln(e)=1
+		// so just return the same node
+		ASTNode* result = new ASTNode("^");
+		result->left = new ASTNode("e");
+		result->right = node->right;
+		ASTNode* chain = new ASTNode("*");
+		chain->left = result;
+		chain->right = Differentiate(node->right);
+		return chain;
+	}
 }
 
 double TangentToCurve::Slope()
@@ -443,4 +468,14 @@ double TangentToCurve::Slope()
 
 	return (Evaluator(node, x + h).Result() - Evaluator(node, x).Result()) / h; // Numeric Method
 
+}
+
+string TangentToCurve::toString(ASTNode* node)
+{
+	if (node->left == nullptr && node->right == nullptr)
+		return node->value;
+	else if (node->right == nullptr)  // function node
+		return node->value + "(" + toString(node->left) + ")";
+	else
+		return "(" + toString(node->left) + node->value + toString(node->right) + ")";
 }

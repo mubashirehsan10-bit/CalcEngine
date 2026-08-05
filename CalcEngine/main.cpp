@@ -21,14 +21,25 @@ int main()
 
     vector<Token> arr = t.tokenize();
 
+    for (Token t : arr)
+        cout << t.value << " ";
+
+    cout << endl;
+
+
     try {
         Parser parse(arr);
 
         ASTNode* root = parse.parse();
 
+        cout << root->value << endl;
+        cout << root->left->value << endl;
+        cout << root->right->value << endl;
+
         TangentToCurve diff(root, 0); // x value doesn't matter for symbolic
         ASTNode* derivative = diff.Derivative();
-        Evaluator eval(derivative, 1); // evaluate derivative at x=3
+        cout << "d/dx " << equation << " = " << diff.toString(derivative) << endl;
+        Evaluator eval(derivative, 1); // evaluate derivative at x = 1
         cout << "Derivative at x=1: " << eval.Result();
     }
     catch (const char* c)

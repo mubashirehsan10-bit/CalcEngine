@@ -12,8 +12,11 @@ class TangentToCurve
 	ASTNode* productRule(ASTNode* node);
 	ASTNode* chainRule(ASTNode* node);
 	ASTNode* Differentiate(ASTNode* node); // calls the right rule
+
 public:
 	TangentToCurve(ASTNode* ast, double x);
+	string toString(ASTNode* node);
+
 	ASTNode* Derivative();  //Gives Expression -> Next Phase  Symbolic method
 	double Slope();
 
