@@ -133,4 +133,4 @@ Built during summer break as a self-driven deep-dive into calculus and compiler 
 - Tree-based symbolic computation
 - Numerical methods for limits, derivatives, and integrals
 - How calculus rules translate directly into recursive algorithms
-- OOP design patterns in a real, non-trivial C++ project
+- OOP & DSA design patterns in a real, non-trivial C++ project
