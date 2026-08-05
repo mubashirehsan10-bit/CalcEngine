@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -102,11 +102,18 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\HP\OneDrive\Documents\SFML-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\HP\OneDrive\Documents\SFML-3.0.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "C:\Users\HP\OneDrive\Documents\SFML-3.0.2\bin\*-d-3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -116,11 +123,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\HP\OneDrive\Documents\SFML-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\HP\OneDrive\Documents\SFML-3.0.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;sfml-audio.lib;sfml-network.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "C:\Users\HP\OneDrive\Documents\SFML-3.0.2\bin\*.dll" "$(OutDir)"
+del "$(OutDir)*-d-3.dll" 2&gt;nul
+exit 0</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -130,6 +146,17 @@
     <ClCompile Include="src\calculus\Limits.cpp" />
     <ClCompile Include="src\parser\Parser.cpp" />
     <ClCompile Include="src\parser\Tokenizer.cpp" />
+    <ClCompile Include="src\ui\Animation.cpp" />
+    <ClCompile Include="src\ui\AnimationController.cpp" />
+    <ClCompile Include="src\ui\ClickAnimation.cpp" />
+    <ClCompile Include="src\ui\Ease.cpp" />
+    <ClCompile Include="src\ui\FadeAnimation.cpp" />
+    <ClCompile Include="src\ui\HoverAnimation.cpp" />
+    <ClCompile Include="src\ui\PulseAnimation.cpp" />
+    <ClCompile Include="src\ui\Renderer.cpp" />
+    <ClCompile Include="src\ui\SlideAnimation.cpp" />
+    <ClCompile Include="src\ui\Theme.cpp" />
+    <ClCompile Include="src\ui\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\calculus\Differentiator.h" />
@@ -138,6 +165,17 @@
     <ClInclude Include="src\calculus\Limits.h" />
     <ClInclude Include="src\parser\Parser.h" />
     <ClInclude Include="src\parser\Tokenizer.h" />
+    <ClInclude Include="src\ui\Animation.h" />
+    <ClInclude Include="src\ui\AnimationController.h" />
+    <ClInclude Include="src\ui\ClickAnimation.h" />
+    <ClInclude Include="src\ui\Ease.h" />
+    <ClInclude Include="src\ui\FadeAnimation.h" />
+    <ClInclude Include="src\ui\HoverAnimation.h" />
+    <ClInclude Include="src\ui\PulseAnimation.h" />
+    <ClInclude Include="src\ui\Renderer.h" />
+    <ClInclude Include="src\ui\SlideAnimation.h" />
+    <ClInclude Include="src\ui\Theme.h" />
+    <ClInclude Include="src\ui\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
