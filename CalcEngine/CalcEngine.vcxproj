@@ -146,6 +146,7 @@ exit 0</Command>
     <ClCompile Include="src\calculus\Limits.cpp" />
     <ClCompile Include="src\parser\Parser.cpp" />
     <ClCompile Include="src\parser\Tokenizer.cpp" />
+    <ClCompile Include="src\ui\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\calculus\Differentiator.h" />
