@@ -28,8 +28,12 @@ ASTNode* TangentToCurve::Differentiate(ASTNode* node) // Base funtion to get
 	else if (node->value == "+" || node->value == "-")
 		expression = sumRule(node);
 
-	else if (node->value == "*" || node->value == "/")
-		expression = productRule(node);
+	else if (node->value == "*")
+		return productRule(node);
+
+	else if (node->value == "/")
+		return quotientRule(node);
+
 	else
 		expression = chainRule(node);
 
@@ -98,6 +102,38 @@ ASTNode* TangentToCurve::productRule(ASTNode* node) // d/dx (x*y) = d/dx(x) * y 
 	return expression;
 
 }
+
+ASTNode* TangentToCurve::quotientRule(ASTNode* node) // (u/v)' = (u'v - uv') / (v^2)
+{
+
+	ASTNode* divide = new ASTNode("/");
+
+	ASTNode* numerator = new ASTNode("-");
+
+	ASTNode* leftMul = new ASTNode("*");
+	ASTNode* rightMul = new ASTNode("*");
+
+	// u' * v
+	leftMul->left = Differentiate(node->left);
+	leftMul->right = node->right;
+
+	// u * v'
+	rightMul->left = node->left;
+	rightMul->right = Differentiate(node->right);
+
+	numerator->left = leftMul;
+	numerator->right = rightMul;
+
+	ASTNode* denominator = new ASTNode("^");
+	denominator->left = node->right;
+	denominator->right = new ASTNode("2");
+
+	divide->left = numerator;
+	divide->right = denominator;
+
+	return divide;
+}
+
 
 ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno functions
 {
@@ -480,12 +516,109 @@ double TangentToCurve::Slope()
 
 }
 
+int TangentToCurve::precedence(const std::string& op)
+{
+	if (op == "+" || op == "-") return 1;
+	if (op == "*" || op == "/") return 2;
+	if (op == "^") return 3;
+	return 100; // numbers, variables, functions
+}
+
 string TangentToCurve::toString(ASTNode* node)
 {
+	if (node == nullptr)
+		return "";
+
+	// Leaf node
 	if (node->left == nullptr && node->right == nullptr)
 		return node->value;
-	else if (node->right == nullptr)  // function node
+
+	// Function node
+	if (node->right == nullptr)
 		return node->value + "(" + toString(node->left) + ")";
-	else
-		return "(" + toString(node->left) + node->value + toString(node->right) + ")";
+
+	// ---------------- Display Simplification ----------------
+
+	// Multiplication
+	if (node->value == "*")
+	{
+		// 0*x or x*0
+		if (node->left->value == "0" || node->right->value == "0")
+			return "0";
+
+		// 1*x
+		if (node->left->value == "1")
+			return toString(node->right);
+
+		// x*1
+		if (node->right->value == "1")
+			return toString(node->left);
+
+		// Hide multiplication symbol
+		return toString(node->left) + toString(node->right);
+	}
+
+	// Addition
+	if (node->value == "+")
+	{
+		if (node->left->value == "0")
+			return toString(node->right);
+
+		if (node->right->value == "0")
+			return toString(node->left);
+	}
+
+	// Subtraction
+	if (node->value == "-")
+	{
+		// x-0
+		if (node->right->value == "0")
+			return toString(node->left);
+
+		// 0-x
+		if (node->left->value == "0")
+			return "-" + toString(node->right);
+	}
+
+	// Division
+	if (node->value == "/")
+	{
+		// 0/x
+		if (node->left->value == "0")
+			return "0";
+
+		// x/1
+		if (node->right->value == "1")
+			return toString(node->left);
+	}
+
+	// Powers
+	if (node->value == "^")
+	{
+		// x^1
+		if (node->right->value == "1")
+			return toString(node->left);
+
+		// x^0
+		if (node->right->value == "0")
+			return "1";
+
+		// 1^x
+		if (node->left && node->left->value == "1")
+			return "1";
+
+		// 0^x
+		if (node->left && node->left->value == "0")
+			return "0";
+	}
+
+	// ---------------------------------------------------------
+
+	string left = toString(node->left);
+	string right = toString(node->right);
+
+	if (node->value == "+" || node->value == "-")
+		return left + " " + node->value + " " + right;
+
+	return left + node->value + right;
 }

@@ -10,8 +10,10 @@ class TangentToCurve
 	ASTNode* powerRule(ASTNode* node);
 	ASTNode* sumRule(ASTNode* node);
 	ASTNode* productRule(ASTNode* node);
+	ASTNode* quotientRule(ASTNode* node);
 	ASTNode* chainRule(ASTNode* node);
 	ASTNode* Differentiate(ASTNode* node); // calls the right rule
+	int precedence(const std::string& op);
 
 public:
 	TangentToCurve(ASTNode* ast, double x);

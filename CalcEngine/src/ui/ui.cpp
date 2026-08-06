@@ -377,14 +377,28 @@ void Graph::drawIntegRegion(sf::RenderWindow& w, const sf::Font& font,
     UI::drawText(w, font, "b=" + UI::fmt(integB, 2), { bxLabelX, labelY }, Pal::PINK, 12);
 }
 
-void Graph::handleScroll(float delta)
+void Graph::handleScroll(float delta, sf::Vector2f mousePos)
 {
-    double mid = (xMin + xMax) / 2.0;
-    double half = (xMax - xMin) / 2.0;
-    half *= (delta > 0) ? 0.85 : 1.18;
-    half = std::max(0.1, std::min(half, 500.0));
-    xMin = mid - half;
-    xMax = mid + half;
+    double ratioX = (mousePos.x - area.position.x) / area.size.x;
+    double ratioY = 1.0 - (mousePos.y - area.position.y) / area.size.y;
+
+    double worldX = xMin + ratioX * (xMax - xMin);
+    double worldY = yMin + ratioY * (yMax - yMin);
+
+    double factor = (delta > 0) ? 0.85 : 1.18;
+
+    double rangeX = (xMax - xMin) * factor;
+    double rangeY = (yMax - yMin) * factor;
+
+    rangeX = std::max(0.01, std::min(rangeX, 1000.0));
+    rangeY = std::max(0.01, std::min(rangeY, 1000.0));
+
+    xMin = worldX - ratioX * rangeX;
+    xMax = worldX + (1.0 - ratioX) * rangeX;
+    yMin = worldY - ratioY * rangeY;
+    yMax = worldY + (1.0 - ratioY) * rangeY;
+
+    manualY = true;
 }
 
 void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
@@ -400,7 +414,8 @@ void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
     }
 
     double yMn, yMx;
-    computeYRange(yMn, yMx);
+    if (manualY) { yMn = yMin; yMx = yMax; }
+    else { computeYRange(yMn, yMx); yMin = yMn; yMax = yMx; }
 
     // grid
     for (int i = 0; i <= 8; ++i) {
@@ -477,6 +492,7 @@ void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
             Pal::BG_CARD, Pal::DIVIDER, 1.f);
         UI::drawText(w, font, tip, { tx2, ty2 }, Pal::CYAN, 12);
     }
+
 
     // legend
     float lx2 = area.position.x + 10.f, ly2 = area.position.y + 10.f;
@@ -594,6 +610,48 @@ void CalcApp::handleEvents()
             }
             if (k->code == sf::Keyboard::Key::Enter && step == Step::ENTER_PARAMS)
                 runCalculation();
+            if (const auto* mb = ev->getIf<sf::Event::MouseButtonPressed>())
+            {
+                if (mb->button == sf::Mouse::Button::Left)
+                {
+                    clicked = true;
+                    sf::Vector2f mp(mb->position);
+                    if (graph.area.contains(mp))
+                    {
+                        graph.dragging = true;
+                        graph.dragStart = mp;
+                        graph.dragXMin = graph.xMin;
+                        graph.dragXMax = graph.xMax;
+                        graph.dragYMin = graph.yMin;
+                        graph.dragYMax = graph.yMax;
+                    }
+                }
+            }
+
+            if (const auto* mb = ev->getIf<sf::Event::MouseButtonReleased>())
+                if (mb->button == sf::Mouse::Button::Left)
+                    graph.dragging = false;
+
+            if (const auto* mm = ev->getIf<sf::Event::MouseMoved>())
+            {
+                graph.crosshairPos = sf::Vector2f(mm->position);
+                graph.crosshairActive = graph.area.contains(graph.crosshairPos);
+
+                if (graph.dragging)
+                {
+                    float dx = graph.crosshairPos.x - graph.dragStart.x;
+                    float dy = graph.crosshairPos.y - graph.dragStart.y;
+
+                    double worldDx = dx / graph.area.size.x * (graph.dragXMax - graph.dragXMin);
+                    double worldDy = dy / graph.area.size.y * (graph.dragYMax - graph.dragYMin);
+
+                    graph.xMin = graph.dragXMin - worldDx;
+                    graph.xMax = graph.dragXMax - worldDx;
+                    graph.yMin = graph.dragYMin + worldDy;
+                    graph.yMax = graph.dragYMax + worldDy;
+                    graph.manualY = true;
+                }
+            }
         }
 
         if (const auto* t = ev->getIf<sf::Event::TextEntered>())
@@ -609,9 +667,16 @@ void CalcApp::handleEvents()
         if (const auto* mb = ev->getIf<sf::Event::MouseButtonPressed>())
             if (mb->button == sf::Mouse::Button::Left) clicked = true;
 
+        if (const auto* mb = ev->getIf<sf::Event::MouseButtonPressed>())
+            if (mb->button == sf::Mouse::Button::Right && graph.area.contains(sf::Vector2f(mb->position)))
+            {
+                graph.xMin = -5.0; graph.xMax = 5.0;
+                graph.manualY = false;
+            }
+
         if (const auto* sw = ev->getIf<sf::Event::MouseWheelScrolled>())
             if (graph.area.contains(sf::Vector2f(sf::Mouse::getPosition(window))))
-                graph.handleScroll(sw->delta);
+                graph.handleScroll(sw->delta, sf::Vector2f(sf::Mouse::getPosition(window)));
 
         if (const auto* mm = ev->getIf<sf::Event::MouseMoved>())
         {
@@ -762,6 +827,7 @@ void CalcApp::draw()
     UI::drawText(window, font, "GRAPH", { GX + 50.f,(float)GY - 18.f }, Pal::TXT_DIM, 11);
     graph.draw(window, font);
     window.display();
+
 }
 
 void CalcApp::drawHeader()

@@ -56,8 +56,8 @@ double Evaluator::evaluate(ASTNode* node)
     if (node->value == "acos") return acos(evaluate(node->left));
     if (node->value == "atan") return atan(evaluate(node->left));
     if (node->value == "acsc" or node->value == "acosec") return 1.0 / asin(evaluate(node->left));
-    if (node->value == "acos") return 1.0 / acos(evaluate(node->left));
-    if (node->value == "atan") return 1.0 / atan(evaluate(node->left));
+    if (node->value == "asec") return 1.0 / acos(evaluate(node->left));
+    if (node->value == "acot") return 1.0 / atan(evaluate(node->left));
 
     // hyperbolic
     if (node->value == "sinh") return sinh(evaluate(node->left));

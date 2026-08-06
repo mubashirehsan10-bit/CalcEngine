@@ -201,7 +201,7 @@ struct Graph
 {
     sf::FloatRect area;
 
-    double xMin = -5.0;
+    double xMin = -5.0; // x axis
     double xMax = 5.0;
 
     bool showDeriv = false;
@@ -210,13 +210,21 @@ struct Graph
     double integA = 0.0;
     double integB = 1.0;
 
+    double yMin = -10.0, yMax = 10.0; // y axis
+    bool   manualY = false;
+
+    bool         dragging = false;
+    sf::Vector2f dragStart;
+    double       dragXMin, dragXMax;
+    double       dragYMin, dragYMax;
+
     bool crosshairActive = false;
     sf::Vector2f crosshairPos;
 
     ASTNode* fxNode = nullptr;
     ASTNode* dxNode = nullptr;
 
-    void handleScroll(float delta);
+    void handleScroll(float delta, sf::Vector2f mousePos);;
 
     void draw(
         sf::RenderWindow&,
