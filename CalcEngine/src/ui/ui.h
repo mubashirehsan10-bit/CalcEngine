@@ -206,6 +206,10 @@ struct Graph
 
     bool showDeriv = false;
 
+    bool   showIntegRegion = false;
+    double integA = 0.0;
+    double integB = 1.0;
+
     bool crosshairActive = false;
     sf::Vector2f crosshairPos;
 
@@ -219,6 +223,9 @@ struct Graph
         const sf::Font&);
 
 private:
+
+    void drawIntegRegion(sf::RenderWindow& w, const sf::Font& font,
+        double yMn, double yMx);
 
     float mapX(double x) const;
 

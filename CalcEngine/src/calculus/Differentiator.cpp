@@ -37,11 +37,11 @@ ASTNode* TangentToCurve::Differentiate(ASTNode* node) // Base funtion to get
 
 }
 
-ASTNode* TangentToCurve::powerRule(ASTNode* node) // ---> x^n <---
+ASTNode* TangentToCurve::powerRule(ASTNode* node)
 {
-	if (!isdigit(node->right->value[0])) {
-		// variable is in exponent, not base
-		// d/dx e^x = e^x * ln(e) = e^x
+	// variable exponent case (e.g. e^x)
+	if (!isdigit(node->right->value[0]))
+	{
 		ASTNode* result = new ASTNode("^");
 		result->left = node->left;
 		result->right = node->right;
@@ -51,16 +51,26 @@ ASTNode* TangentToCurve::powerRule(ASTNode* node) // ---> x^n <---
 		return chain;
 	}
 
-	ASTNode* expression = new ASTNode("*");
-	ASTNode* power = new ASTNode("^");
-	power->left = node->left;                                          // x
+	// constant exponent — power rule + chain rule
 	double val = stod(node->right->value) - 1;
-	string expStr = (val == floor(val)) ? to_string((int)val) : to_string(val); // to round of if num is whole num
-	power->right = new ASTNode(expStr); // 1
-	expression->left = node->right;                                    // 2
-	expression->right = power;
-	return expression;
+	string expStr = (val == floor(val)) ? to_string((int)val) : to_string(val);
 
+	ASTNode* power = new ASTNode("^");
+	power->left = node->left;
+	power->right = new ASTNode(expStr);
+
+	ASTNode* coeff = new ASTNode("*");
+	coeff->left = node->right;   // n
+	coeff->right = power;          // base^(n-1)
+
+	// multiply by derivative of base (chain rule)
+	ASTNode* chainPart = Differentiate(node->left);
+
+	ASTNode* result = new ASTNode("*");
+	result->left = coeff;
+	result->right = chainPart;
+
+	return result;
 }
 ASTNode* TangentToCurve::sumRule(ASTNode* node) // d/dx ( f(x) + g(x) )
 {

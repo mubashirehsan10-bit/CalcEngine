@@ -191,6 +191,10 @@ void InputBox::draw(sf::RenderWindow& w, const sf::Font& font)
 // ═══════════════════════════════════════════════════════════════════
 //  GRAPH
 // ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  GRAPH  — complete replacement for CalcUI.cpp Graph section
+// ═══════════════════════════════════════════════════════════════════
+
 float Graph::mapX(double x) const
 {
     return area.position.x + (float)((x - xMin) / (xMax - xMin)) * area.size.x;
@@ -203,8 +207,10 @@ float Graph::mapY(double y, double yMn, double yMx) const
 
 void Graph::computeYRange(double& yMn, double& yMx)
 {
-    int N = 500; double step = (xMax - xMin) / N;
+    int N = 500;
+    double step = (xMax - xMin) / N;
     yMn = 1e18; yMx = -1e18;
+
     auto sample = [&](ASTNode* n) {
         if (!n) return;
         for (int i = 0; i <= N; ++i) {
@@ -216,8 +222,10 @@ void Graph::computeYRange(double& yMn, double& yMx)
             catch (...) {}
         }
         };
+
     sample(fxNode);
     if (showDeriv) sample(dxNode);
+
     if (!std::isfinite(yMn) || !std::isfinite(yMx)) { yMn = -10; yMx = 10; }
     if (yMn == yMx) { yMn -= 1; yMx += 1; }
     double pad = (yMx - yMn) * 0.12;
@@ -228,62 +236,155 @@ void Graph::plotCurve(sf::RenderWindow& w, ASTNode* node,
     sf::Color col, double yMn, double yMx)
 {
     if (!node) return;
-    int N = 700; double step = (xMax - xMin) / N;
-    std::vector<sf::Vertex> pts;
-    bool prev = false; double prevY = 1e18;
+    int N = 700;
+    double step = (xMax - xMin) / N;
 
-    for (int i = 0; i <= N; ++i) {
+    std::vector<sf::Vertex> pts;
+    bool prev = false;
+    double prevY = 1e18;
+
+    for (int i = 0; i <= N; ++i)
+    {
         double x = xMin + i * step;
         try {
             double y = Evaluator(node, x).Result();
             if (!std::isfinite(y)) { prev = false; prevY = 1e18; continue; }
+
             if (prev && std::abs(y - prevY) > (yMx - yMn) * 2.0) {
-                if (pts.size() > 1) w.draw(pts.data(), pts.size(), sf::PrimitiveType::LineStrip);
+                if (pts.size() > 1)
+                    w.draw(pts.data(), pts.size(), sf::PrimitiveType::LineStrip);
                 pts.clear(); prev = false;
             }
+
             float px = mapX(x), py = mapY(y, yMn, yMx);
-            if (py<area.position.y - 2.f || py>area.position.y + area.size.y + 2.f)
+            if (py < area.position.y - 2.f || py > area.position.y + area.size.y + 2.f)
             {
                 prev = false; prevY = y; continue;
             }
-            pts.push_back({ {px,py},col });
+
+            pts.push_back({ {px, py}, col });
             prev = true; prevY = y;
         }
         catch (...) { prev = false; prevY = 1e18; }
     }
-    if (pts.size() > 1) w.draw(pts.data(), pts.size(), sf::PrimitiveType::LineStrip);
+    if (pts.size() > 1)
+        w.draw(pts.data(), pts.size(), sf::PrimitiveType::LineStrip);
 
     // glow pass
     std::vector<sf::Vertex> gpts;
     prev = false; prevY = 1e18;
-    for (int i = 0; i <= N; ++i) {
+    for (int i = 0; i <= N; ++i)
+    {
         double x = xMin + i * step;
         try {
             double y = Evaluator(node, x).Result();
             if (!std::isfinite(y)) { prev = false; prevY = 1e18; continue; }
             float px = mapX(x), py = mapY(y, yMn, yMx);
-            if (py<area.position.y - 2.f || py>area.position.y + area.size.y + 2.f)
+            if (py < area.position.y - 2.f || py > area.position.y + area.size.y + 2.f)
             {
                 prev = false; continue;
             }
-            gpts.push_back({ {px,py},Pal::glow(col,35) });
+            gpts.push_back({ {px, py}, Pal::glow(col, 35) });
             prev = true; prevY = y;
         }
         catch (...) { prev = false; }
     }
     for (float off : {-2.f, -1.f, 1.f, 2.f}) {
         std::vector<sf::Vertex> ov;
-        for (auto& v : gpts) ov.push_back({ {v.position.x,v.position.y + off},v.color });
-        if (ov.size() > 1) w.draw(ov.data(), ov.size(), sf::PrimitiveType::LineStrip);
+        for (auto& v : gpts)
+            ov.push_back({ {v.position.x, v.position.y + off}, v.color });
+        if (ov.size() > 1)
+            w.draw(ov.data(), ov.size(), sf::PrimitiveType::LineStrip);
     }
+}
+
+void Graph::drawIntegRegion(sf::RenderWindow& w, const sf::Font& font,
+    double yMn, double yMx)
+{
+    if (!showIntegRegion || !fxNode) return;
+
+    // clamp a and b to visible range for drawing
+    double a = std::max(integA, xMin);
+    double b = std::min(integB, xMax);
+    if (a >= b) return;
+
+    int    N = 400;
+    double step = (b - a) / N;
+    float  yZero = mapY(0.0, yMn, yMx);
+
+    // clamp yZero to area bounds
+    yZero = std::max(yZero, area.position.y);
+    yZero = std::min(yZero, area.position.y + area.size.y);
+
+    // shaded triangle strip from baseline to curve
+    std::vector<sf::Vertex> strip;
+    sf::Color fillCol = Pal::glow(Pal::PINK, 50);
+
+    for (int i = 0; i <= N; ++i)
+    {
+        double x = a + i * step;
+        try {
+            double y = Evaluator(fxNode, x).Result();
+            if (!std::isfinite(y)) continue;
+            float px = mapX(x);
+            float py = mapY(y, yMn, yMx);
+            py = std::max(py, area.position.y);
+            py = std::min(py, area.position.y + area.size.y);
+            strip.push_back({ {px, yZero}, fillCol });
+            strip.push_back({ {px, py},    fillCol });
+        }
+        catch (...) {}
+    }
+    if (strip.size() > 2)
+        w.draw(strip.data(), strip.size(), sf::PrimitiveType::TriangleStrip);
+
+    // vertical limit lines at a and b
+    float xA = mapX(integA);
+    float xB = mapX(integB);
+
+    // dashed effect — draw segments
+    float top = area.position.y;
+    float bot = area.position.y + area.size.y;
+    int   segs = 20;
+    float segH = (bot - top) / (segs * 2.f);
+
+    for (int i = 0; i < segs; ++i)
+    {
+        float y0 = top + i * segH * 2.f;
+        float y1 = y0 + segH;
+        sf::Vertex la[2] = { {{xA, y0}, Pal::PINK}, {{xA, y1}, Pal::PINK} };
+        sf::Vertex lb[2] = { {{xB, y0}, Pal::PINK}, {{xB, y1}, Pal::PINK} };
+        w.draw(la, 2, sf::PrimitiveType::Lines);
+        w.draw(lb, 2, sf::PrimitiveType::Lines);
+    }
+
+    // a and b labels — place above the line, avoid going off-screen
+    float labelY = area.position.y + 6.f;
+
+    float axLabelX = xA + 5.f;
+    if (axLabelX + 50.f > area.position.x + area.size.x) axLabelX = xA - 45.f;
+
+    float bxLabelX = xB + 5.f;
+    if (bxLabelX + 50.f > area.position.x + area.size.x) bxLabelX = xB - 45.f;
+
+    // label backgrounds
+    UI::drawRect(w, { {axLabelX - 2.f, labelY - 1.f}, {46.f, 18.f} },
+        Pal::glow(Pal::BG_CARD, 200), Pal::PINK, 1.f);
+    UI::drawRect(w, { {bxLabelX - 2.f, labelY - 1.f}, {46.f, 18.f} },
+        Pal::glow(Pal::BG_CARD, 200), Pal::PINK, 1.f);
+
+    UI::drawText(w, font, "a=" + UI::fmt(integA, 2), { axLabelX, labelY }, Pal::PINK, 12);
+    UI::drawText(w, font, "b=" + UI::fmt(integB, 2), { bxLabelX, labelY }, Pal::PINK, 12);
 }
 
 void Graph::handleScroll(float delta)
 {
-    double mid = (xMin + xMax) / 2.0, half = (xMax - xMin) / 2.0;
+    double mid = (xMin + xMax) / 2.0;
+    double half = (xMax - xMin) / 2.0;
     half *= (delta > 0) ? 0.85 : 1.18;
     half = std::max(0.1, std::min(half, 500.0));
-    xMin = mid - half; xMax = mid + half;
+    xMin = mid - half;
+    xMax = mid + half;
 }
 
 void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
@@ -291,33 +392,41 @@ void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
     UI::drawRect(w, area, Pal::BG_PANEL, Pal::DIVIDER, 1.f);
 
     if (!fxNode) {
-        UI::drawText(w, font, "Graph appears here after calculation.",
-            { area.position.x + 24.f,area.position.y + area.size.y / 2.f - 10.f },
+        UI::drawText(w, font,
+            "Graph appears here after calculation.",
+            { area.position.x + 24.f, area.position.y + area.size.y / 2.f - 10.f },
             Pal::TXT_DIM, 14);
         return;
     }
 
-    double yMn, yMx; computeYRange(yMn, yMx);
+    double yMn, yMx;
+    computeYRange(yMn, yMx);
 
     // grid
     for (int i = 0; i <= 8; ++i) {
         float gx = area.position.x + (float)i / 8.f * area.size.x;
         float gy = area.position.y + (float)i / 8.f * area.size.y;
-        sf::Vertex lx[2] = { {{gx,area.position.y},Pal::GRID},{{gx,area.position.y + area.size.y},Pal::GRID} };
-        sf::Vertex ly[2] = { {{area.position.x,gy},Pal::GRID},{{area.position.x + area.size.x,gy},Pal::GRID} };
+        sf::Vertex lx[2] = { {{gx, area.position.y}, Pal::GRID},
+                             {{gx, area.position.y + area.size.y}, Pal::GRID} };
+        sf::Vertex ly[2] = { {{area.position.x, gy}, Pal::GRID},
+                             {{area.position.x + area.size.x, gy}, Pal::GRID} };
         w.draw(lx, 2, sf::PrimitiveType::Lines);
         w.draw(ly, 2, sf::PrimitiveType::Lines);
     }
 
-    // axes
-    if (yMn < 0 && yMx>0) {
+    // x-axis
+    if (yMn < 0 && yMx > 0) {
         float ay = mapY(0, yMn, yMx);
-        sf::Vertex v[2] = { {{area.position.x,ay},Pal::AXIS},{{area.position.x + area.size.x,ay},Pal::AXIS} };
+        sf::Vertex v[2] = { {{area.position.x, ay}, Pal::AXIS},
+                            {{area.position.x + area.size.x, ay}, Pal::AXIS} };
         w.draw(v, 2, sf::PrimitiveType::Lines);
     }
-    if (xMin < 0 && xMax>0) {
+
+    // y-axis
+    if (xMin < 0 && xMax > 0) {
         float ax = mapX(0);
-        sf::Vertex v[2] = { {{ax,area.position.y},Pal::AXIS},{{ax,area.position.y + area.size.y},Pal::AXIS} };
+        sf::Vertex v[2] = { {{ax, area.position.y}, Pal::AXIS},
+                            {{ax, area.position.y + area.size.y}, Pal::AXIS} };
         w.draw(v, 2, sf::PrimitiveType::Lines);
     }
 
@@ -325,59 +434,95 @@ void Graph::draw(sf::RenderWindow& w, const sf::Font& font)
     for (int i = 0; i <= 5; ++i) {
         double xv = xMin + (xMax - xMin) * i / 5.0;
         double yv = yMn + (yMx - yMn) * i / 5.0;
-        UI::drawText(w, font, UI::fmt(xv, 1), { mapX(xv) - 14.f,area.position.y + area.size.y + 4.f }, Pal::TXT_DIM, 11);
-        UI::drawText(w, font, UI::fmt(yv, 1), { area.position.x - 46.f,mapY(yv,yMn,yMx) - 8.f }, Pal::TXT_DIM, 11);
+        UI::drawText(w, font, UI::fmt(xv, 1),
+            { mapX(xv) - 14.f, area.position.y + area.size.y + 4.f }, Pal::TXT_DIM, 11);
+        UI::drawText(w, font, UI::fmt(yv, 1),
+            { area.position.x - 46.f, mapY(yv, yMn, yMx) - 8.f }, Pal::TXT_DIM, 11);
     }
 
+    // integration shaded region (draw before curves so curves appear on top)
+    drawIntegRegion(w, font, yMn, yMx);
+
+    // curves
     plotCurve(w, fxNode, Pal::CYAN, yMn, yMx);
-    if (showDeriv && dxNode) plotCurve(w, dxNode, Pal::GOLD, yMn, yMx);
+    if (showDeriv && dxNode)
+        plotCurve(w, dxNode, Pal::GOLD, yMn, yMx);
 
     // crosshair
-    if (crosshairActive && area.contains(crosshairPos)) {
+    if (crosshairActive && area.contains(crosshairPos))
+    {
         float cx2 = crosshairPos.x, cy2 = crosshairPos.y;
         sf::Color ch = Pal::glow(Pal::TXT_MID, 100);
-        sf::Vertex vx[2] = { {{area.position.x,cy2},ch},{{area.position.x + area.size.x,cy2},ch} };
-        sf::Vertex vy[2] = { {{cx2,area.position.y},ch},{{cx2,area.position.y + area.size.y},ch} };
+        sf::Vertex vx[2] = { {{area.position.x, cy2}, ch},
+                             {{area.position.x + area.size.x, cy2}, ch} };
+        sf::Vertex vy[2] = { {{cx2, area.position.y}, ch},
+                             {{cx2, area.position.y + area.size.y}, ch} };
         w.draw(vx, 2, sf::PrimitiveType::Lines);
         w.draw(vy, 2, sf::PrimitiveType::Lines);
 
         sf::CircleShape dot(3.f);
         dot.setFillColor(Pal::CYAN);
-        dot.setPosition({ cx2 - 3.f,cy2 - 3.f });
+        dot.setPosition({ cx2 - 3.f, cy2 - 3.f });
         w.draw(dot);
 
         double wx = xMin + (cx2 - area.position.x) / area.size.x * (xMax - xMin);
         double wy = yMx - (cy2 - area.position.y) / area.size.y * (yMx - yMn);
         std::string tip = "x=" + UI::fmt(wx, 3) + "  y=" + UI::fmt(wy, 3);
+
         float tx2 = cx2 + 8.f, ty2 = cy2 - 22.f;
         if (tx2 + 136.f > area.position.x + area.size.x) tx2 = cx2 - 144.f;
         if (ty2 < area.position.y) ty2 = cy2 + 6.f;
-        UI::drawRect(w, { {tx2 - 4.f,ty2 - 2.f},{142.f,20.f} }, Pal::BG_CARD, Pal::DIVIDER, 1.f);
-        UI::drawText(w, font, tip, { tx2,ty2 }, Pal::CYAN, 12);
+
+        UI::drawRect(w, { {tx2 - 4.f, ty2 - 2.f}, {142.f, 20.f} },
+            Pal::BG_CARD, Pal::DIVIDER, 1.f);
+        UI::drawText(w, font, tip, { tx2, ty2 }, Pal::CYAN, 12);
     }
 
     // legend
     float lx2 = area.position.x + 10.f, ly2 = area.position.y + 10.f;
     float lh = (showDeriv && dxNode) ? 48.f : 26.f;
-    UI::drawRect(w, { {lx2,ly2},{90.f,lh} }, Pal::glow(Pal::BG_CARD, 200), Pal::DIVIDER, 1.f);
-    sf::RectangleShape l1({ 12.f,2.f }); l1.setFillColor(Pal::CYAN);
-    l1.setPosition({ lx2 + 6.f,ly2 + 10.f }); w.draw(l1);
-    UI::drawText(w, font, "f(x)", { lx2 + 22.f,ly2 + 3.f }, Pal::CYAN, 12);
+    if (showIntegRegion) lh += 22.f;
+
+    UI::drawRect(w, { {lx2, ly2}, {100.f, lh} },
+        Pal::glow(Pal::BG_CARD, 200), Pal::DIVIDER, 1.f);
+
+    float legendY = ly2;
+
+    sf::RectangleShape l1({ 12.f, 2.f });
+    l1.setFillColor(Pal::CYAN);
+    l1.setPosition({ lx2 + 6.f, legendY + 10.f });
+    w.draw(l1);
+    UI::drawText(w, font, "f(x)", { lx2 + 22.f, legendY + 3.f }, Pal::CYAN, 12);
+    legendY += 22.f;
+
     if (showDeriv && dxNode) {
-        sf::RectangleShape l2({ 12.f,2.f }); l2.setFillColor(Pal::GOLD);
-        l2.setPosition({ lx2 + 6.f,ly2 + 30.f }); w.draw(l2);
-        UI::drawText(w, font, "f'(x)", { lx2 + 22.f,ly2 + 23.f }, Pal::GOLD, 12);
+        sf::RectangleShape l2({ 12.f, 2.f });
+        l2.setFillColor(Pal::GOLD);
+        l2.setPosition({ lx2 + 6.f, legendY + 10.f });
+        w.draw(l2);
+        UI::drawText(w, font, "f'(x)", { lx2 + 22.f, legendY + 3.f }, Pal::GOLD, 12);
+        legendY += 22.f;
+    }
+
+    if (showIntegRegion) {
+        sf::RectangleShape l3({ 12.f, 10.f });
+        l3.setFillColor(Pal::glow(Pal::PINK, 120));
+        l3.setPosition({ lx2 + 6.f, legendY + 4.f });
+        w.draw(l3);
+        UI::drawText(w, font, "area", { lx2 + 22.f, legendY + 3.f }, Pal::PINK, 12);
     }
 
     UI::drawText(w, font, "scroll to zoom",
-        { area.position.x + area.size.x - 96.f,area.position.y + area.size.y + 4.f }, Pal::TXT_DIM, 11);
+        { area.position.x + area.size.x - 96.f,
+         area.position.y + area.size.y + 4.f },
+        Pal::TXT_DIM, 11);
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  CALC APP
 // ═══════════════════════════════════════════════════════════════════
 CalcApp::CalcApp()
-    : window(sf::VideoMode({ W,H }), "CalcEngine", sf::Style::Close)
+    : window(sf::VideoMode({ W,H }), "Calculus Engine ", sf::Style::Close)
 {
     window.setFramerateLimit(60);
     if (!font.openFromFile("C:/Windows/Fonts/arial.ttf"))
@@ -503,6 +648,7 @@ void CalcApp::handleClick(sf::Vector2i mouse)
 {
     auto sel = [&](Mode m) {
         if (mode != m) { mode = m; step = Step::ENTER_PARAMS; res1 = res2 = res3 = errText = ""; }
+        graph.showIntegRegion = false;
         };
     if (btnEval.contains(mouse))  sel(Mode::EVAL);
     else if (btnDeriv.contains(mouse)) sel(Mode::DERIV);
@@ -576,6 +722,9 @@ void CalcApp::runCalculation()
             res2 = "from " + UI::fmt(a, 2) + " to " + UI::fmt(b, 2);
             res3 = "= " + UI::fmt(ar.AreaUnderCurve(), 6);
             resAccent = Pal::PINK;
+            graph.showIntegRegion = true;
+            graph.integA = a;
+            graph.integB = b;
         }
 
         step = Step::SHOW_RESULT;
@@ -622,16 +771,16 @@ void CalcApp::drawHeader()
     hl.setPosition({ 0,62.f }); hl.setFillColor(Pal::glow(Pal::CYAN, 80));
     window.draw(hl);
     UI::drawRect(window, { {LW + PAD,62.f},{1.f,(float)H - 62.f} }, Pal::DIVIDER);
-    UI::drawText(window, font, "CALCENGINE", { PAD,14.f }, Pal::CYAN, 28, true);
-    UI::drawText(window, font, "Symbolic & Numerical Calculus Engine  ·  C++  ·  Phase 1",
-        { PAD + 192.f,22.f }, Pal::TXT_DIM, 12);
+    UI::drawText(window, font, "CALCULUS ENGINE ", { PAD,14.f }, Pal::CYAN, 28, true);
+    UI::drawText(window, font, "\tSymbolic & Numerical Calculus Engine  ·  C++  ·  Phase 1",
+        { PAD + 300.f,22.f }, Pal::TXT_DIM, 12);
 }
 
 void CalcApp::drawLeftPanel()
 {
     drawStepHint();
 
-    UI::drawText(window, font, "EQUATION", { PAD,76.f }, Pal::TXT_DIM, 10);
+    UI::drawText(window, font, "EQUATION", { PAD,76.f }, Pal::TXT_DIM, 14);
     eqBox.draw(window, font);
 
     UI::drawText(window, font, "OPERATION", { PAD,150.f }, Pal::TXT_DIM, 10);
