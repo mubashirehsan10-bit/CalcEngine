@@ -5,6 +5,8 @@
 #include "../calculus/Limits.h"
 #include "../calculus/Differentiator.h"
 #include "../calculus/Integrator.h"
+#include "../calculus/Simplifier.h"
+#include "../calculus/ExprPrinter.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -765,7 +767,9 @@ void CalcApp::runCalculation()
             derivNode = tc.Derivative();
             graph.dxNode = derivNode;
             if (!derivNode) throw std::runtime_error("Derivative returned null.");
-            res1 = "f'(x) = " + tc.toString(derivNode);
+            ASTNode* simplified = ASTSimplifier::simplify(derivNode);
+            res1 = "f'(x) = " + ExprPrinter::print(simplified);
+            delete simplified; // simplified is a separate copy, safe to delete
             res2 = "f'(" + UI::fmt(xv, 2) + ") = " + UI::fmt(Evaluator(derivNode, xv).Result(), 6);
             try { res3 = "Numerical slope = " + UI::fmt(tc.Slope(), 6); }
             catch (...) { res3 = "Slope undefined at this x."; }

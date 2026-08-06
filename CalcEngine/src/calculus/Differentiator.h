@@ -14,6 +14,7 @@ class TangentToCurve
 	ASTNode* chainRule(ASTNode* node);
 	ASTNode* Differentiate(ASTNode* node); // calls the right rule
 	int precedence(const std::string& op);
+	static ASTNode* copyTree(const ASTNode* node);
 
 public:
 	TangentToCurve(ASTNode* ast, double x);

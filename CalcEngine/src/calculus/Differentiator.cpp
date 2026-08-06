@@ -1,5 +1,7 @@
 ﻿#include "Differentiator.h"
 #include <stdexcept> // For exception handling
+#include "../calculus/Simplifier.h"
+#include "../calculus/ExprPrinter.h"
 
 
 TangentToCurve::TangentToCurve(ASTNode* ast, double x)
@@ -16,8 +18,13 @@ ASTNode* TangentToCurve::Differentiate(ASTNode* node) // Base funtion to get
 {                                                   // actual differentiator
 	ASTNode* expression = new ASTNode("0");
 
+	if (!node) return new ASTNode("0");
+
 	if (node->value == "x")
 		return new ASTNode("1");
+
+	else if (node->value == "e")
+		return new ASTNode("0"); // e is a constant
 
 	else if (isdigit(node->value[0]))
 		return new ASTNode("0");
@@ -41,14 +48,32 @@ ASTNode* TangentToCurve::Differentiate(ASTNode* node) // Base funtion to get
 
 }
 
+ASTNode* TangentToCurve::copyTree(const ASTNode* node)
+{
+	if (!node) return nullptr;
+	ASTNode* copy = new ASTNode(node->value);
+	copy->left = copyTree(node->left);
+	copy->right = copyTree(node->right);
+	return copy;
+}
+
 ASTNode* TangentToCurve::powerRule(ASTNode* node)
 {
 	// variable exponent case (e.g. e^x)
 	if (!isdigit(node->right->value[0]))
 	{
+		ASTNode* base = new ASTNode(node->left->value);
+		base->left = node->left->left;
+		base->right = node->left->right;
+
+		ASTNode* exp = new ASTNode(node->right->value);
+		exp->left = node->right->left;
+		exp->right = node->right->right;
+
 		ASTNode* result = new ASTNode("^");
-		result->left = node->left;
-		result->right = node->right;
+		result->left = base;
+		result->right = exp;
+
 		ASTNode* chain = new ASTNode("*");
 		chain->left = result;
 		chain->right = Differentiate(node->right);
@@ -92,9 +117,9 @@ ASTNode* TangentToCurve::productRule(ASTNode* node) // d/dx (x*y) = d/dx(x) * y 
 	ASTNode* left = new ASTNode("*");
 	ASTNode* right = new ASTNode("*");
 	left->left = Differentiate(node->left);
-	left->right = node->right;
+	left->right = copyTree(node->right);
 	right->left = Differentiate(node->right);
-	right->right = node->left;
+	right->right = copyTree(node->left);
 
 	expression->left = left;
 	expression->right = right;
@@ -115,17 +140,17 @@ ASTNode* TangentToCurve::quotientRule(ASTNode* node) // (u/v)' = (u'v - uv') / (
 
 	// u' * v
 	leftMul->left = Differentiate(node->left);
-	leftMul->right = node->right;
+	leftMul->right = copyTree(node->right);  // v
 
 	// u * v'
-	rightMul->left = node->left;
+	rightMul->left = copyTree(node->left);   // u
 	rightMul->right = Differentiate(node->right);
 
 	numerator->left = leftMul;
 	numerator->right = rightMul;
 
 	ASTNode* denominator = new ASTNode("^");
-	denominator->left = node->right;
+	denominator->left = copyTree(node->right); // v again	
 	denominator->right = new ASTNode("2");
 
 	divide->left = numerator;
@@ -503,6 +528,8 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 		chain->right = Differentiate(node->right);
 		return chain;
 	}
+
+	return new ASTNode("0"); // unknown function — treat as constant
 }
 
 double TangentToCurve::Slope()
@@ -526,99 +553,6 @@ int TangentToCurve::precedence(const std::string& op)
 
 string TangentToCurve::toString(ASTNode* node)
 {
-	if (node == nullptr)
-		return "";
-
-	// Leaf node
-	if (node->left == nullptr && node->right == nullptr)
-		return node->value;
-
-	// Function node
-	if (node->right == nullptr)
-		return node->value + "(" + toString(node->left) + ")";
-
-	// ---------------- Display Simplification ----------------
-
-	// Multiplication
-	if (node->value == "*")
-	{
-		// 0*x or x*0
-		if (node->left->value == "0" || node->right->value == "0")
-			return "0";
-
-		// 1*x
-		if (node->left->value == "1")
-			return toString(node->right);
-
-		// x*1
-		if (node->right->value == "1")
-			return toString(node->left);
-
-		// Hide multiplication symbol
-		return toString(node->left) + toString(node->right);
-	}
-
-	// Addition
-	if (node->value == "+")
-	{
-		if (node->left->value == "0")
-			return toString(node->right);
-
-		if (node->right->value == "0")
-			return toString(node->left);
-	}
-
-	// Subtraction
-	if (node->value == "-")
-	{
-		// x-0
-		if (node->right->value == "0")
-			return toString(node->left);
-
-		// 0-x
-		if (node->left->value == "0")
-			return "-" + toString(node->right);
-	}
-
-	// Division
-	if (node->value == "/")
-	{
-		// 0/x
-		if (node->left->value == "0")
-			return "0";
-
-		// x/1
-		if (node->right->value == "1")
-			return toString(node->left);
-	}
-
-	// Powers
-	if (node->value == "^")
-	{
-		// x^1
-		if (node->right->value == "1")
-			return toString(node->left);
-
-		// x^0
-		if (node->right->value == "0")
-			return "1";
-
-		// 1^x
-		if (node->left && node->left->value == "1")
-			return "1";
-
-		// 0^x
-		if (node->left && node->left->value == "0")
-			return "0";
-	}
-
-	// ---------------------------------------------------------
-
-	string left = toString(node->left);
-	string right = toString(node->right);
-
-	if (node->value == "+" || node->value == "-")
-		return left + " " + node->value + " " + right;
-
-	return left + node->value + right;
+	if (!node) return "";
+	return ExprPrinter::print(node);
 }
