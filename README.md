@@ -175,7 +175,15 @@ Limit EXISTS at x = 1.00
 
 - On every push and pull request, GitHub Actions builds a Windows executable and uploads it as the **`CalcEngine-windows-exe`** artifact.
 - To test quickly: open the workflow run in the **Actions** tab, then download the **`CalcEngine-windows-exe`** artifact and run `CalcEngine.exe`.
-- To publish a release build: push a tag like `v1.0.0`. The release workflow builds the `.exe`, creates the GitHub Release (if needed), and attaches `CalcEngine.exe` as a release asset.
+
+### Release download (recommended)
+
+1. Push a tag like `v1.0.0`.
+2. Open the repo **Releases** page.
+3. Open release **v1.0.0**.
+4. Under **Assets**, click **CalcEngine.exe** to download and run it on Windows.
+
+For safer use, download only from this repository’s official **Releases** page (not re-uploaded third-party links).
 
 ---
 
