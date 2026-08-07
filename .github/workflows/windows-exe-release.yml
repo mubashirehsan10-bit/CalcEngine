@@ -63,6 +63,22 @@ jobs:
             throw "CalcEngine.exe was not found after build."
           }
           Copy-Item $exe.FullName (Join-Path $releaseDir "CalcEngine.exe") -Force
+          $exeDir = Split-Path -Path $exe.FullName -Parent
+          Get-ChildItem -Path $exeDir -Filter *.dll -File | ForEach-Object {
+            Copy-Item $_.FullName (Join-Path $releaseDir $_.Name) -Force
+          }
+
+      - name: Build setup.exe installer
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $tag = "$env:GITHUB_REF_NAME".TrimStart("v")
+          $releaseDir = Join-Path $env:RUNNER_TEMP "release"
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            "/DMyAppVersion=$tag" `
+            "/DSourceDir=$releaseDir" `
+            "/O$releaseDir" `
+            ".\installer\CalcEngine.iss"
 
       - name: Create release (if missing) and upload EXE
         shell: bash
@@ -71,14 +87,18 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           ASSET_PATH="${RUNNER_TEMP}/release/CalcEngine.exe"
+          SETUP_ASSET_PATH="${RUNNER_TEMP}/release/CalcEngine-Setup.exe"
 
           if ! gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            gh release create "$TAG" "$ASSET_PATH" \
+            gh release create "$TAG" "$ASSET_PATH" "$SETUP_ASSET_PATH" \
               --repo "${GITHUB_REPOSITORY}" \
               --title "$TAG" \
               --generate-notes
           else
             gh release upload "$TAG" "$ASSET_PATH" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+            gh release upload "$TAG" "$SETUP_ASSET_PATH" \
               --repo "${GITHUB_REPOSITORY}" \
               --clobber
           fi
