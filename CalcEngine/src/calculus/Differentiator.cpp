@@ -162,11 +162,13 @@ ASTNode* TangentToCurve::quotientRule(ASTNode* node) // (u/v)' = (u'v - uv') / (
 
 ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno functions
 {
+
+
 	// no right node val for trigno and algo funs
 	if (node->value == "sin")
 	{
 		ASTNode* cosNode = new ASTNode("cos");
-		cosNode->left = node->left;          // keep same argument
+		cosNode->left = copyTree(node->left);          // keep same argument
 
 		ASTNode* result = new ASTNode("*");
 		result->left = cosNode;              // cos(g(x))
@@ -177,7 +179,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "cos")
 	{
 		ASTNode* sinNode = new ASTNode("sin");
-		sinNode->left = node->left;
+		sinNode->left = copyTree(node->left);
 
 		ASTNode* neg = new ASTNode("*");
 		neg->left = new ASTNode("-1");
@@ -195,7 +197,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 		// Through tree tracing
 
 		ASTNode* cosNode = new ASTNode("cos");
-		cosNode->left = node->left;
+		cosNode->left = copyTree(node->left);
 
 		ASTNode* pow = new ASTNode("^");
 		pow->left = cosNode;
@@ -216,7 +218,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "asin") // asin x  → 1 / sqrt(1 - x^2)
 	{
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* neg = new ASTNode("-");
@@ -242,7 +244,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	{
 
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* neg = new ASTNode("-");
@@ -268,7 +270,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "atan") // atan x → 1 / (1 + x^2)
 	{
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* pos = new ASTNode("+");
@@ -289,7 +291,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "sinh") // sinh x → cosh(x)
 	{
 		ASTNode* cosNode = new ASTNode("cosh");
-		cosNode->left = node->left;          // keep same argument
+		cosNode->left = copyTree(node->left);          // keep same argument
 
 		ASTNode* result = new ASTNode("*");
 		result->left = cosNode;              // cos(g(x))
@@ -301,7 +303,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	{
 
 		ASTNode* sinNode = new ASTNode("sinh");
-		sinNode->left = node->left;
+		sinNode->left = copyTree(node->left);
 
 		ASTNode* neg = new ASTNode("*");
 		neg->left = new ASTNode("1");
@@ -316,7 +318,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "tanh") // tanh → 1 / cosh^2(x)
 	{
 		ASTNode* cosNode = new ASTNode("cosh");
-		cosNode->left = node->left;
+		cosNode->left = copyTree(node->left);
 
 		ASTNode* pow = new ASTNode("^");
 		pow->left = cosNode;
@@ -335,7 +337,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "asinh") // asinh → 1 / sqrt(x^2 + 1)
 	{
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* pos = new ASTNode("+");
@@ -359,7 +361,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "acosh") // acosh → 1 / sqrt(x^2 - 1)
 	{
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* neg = new ASTNode("+");
@@ -384,7 +386,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	{
 
 		ASTNode* pow = new ASTNode("^");
-		pow->left = node->left;
+		pow->left = copyTree(node->left);
 		pow->right = new ASTNode("2");
 
 		ASTNode* neg = new ASTNode("-");
@@ -406,7 +408,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	{
 		ASTNode* div = new ASTNode("/");
 		div->left = new ASTNode("1");
-		div->right = node->left;
+		div->right = copyTree(node->left);
 
 		ASTNode* exp = new ASTNode("*");
 		exp->left = div;
@@ -421,7 +423,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 		ln->left = new ASTNode("10");
 
 		ASTNode* prod = new ASTNode("*");
-		prod->left = node->left;
+		prod->left = copyTree(node->left);
 		prod->right = ln;
 
 		ASTNode* div = new ASTNode("/");
@@ -438,7 +440,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "sqrt") // sqrt → 1 / (2 * sqrt(x))
 	{
 		ASTNode* sqrt = new ASTNode("sqrt");
-		sqrt->left = node->left;
+		sqrt->left = copyTree(node->left);
 
 		ASTNode* prod = new ASTNode("*");
 		prod->left = new ASTNode("2");
@@ -457,10 +459,10 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "sec") // sec → sec(x) * tan(x)
 	{
 		ASTNode* secx = new ASTNode("sec");
-		secx->left = node->left;
+		secx->left = copyTree(node->left);
 
 		ASTNode* tanx = new ASTNode("tan");
-		tanx->left = node->left;
+		tanx->left = copyTree(node->left);
 
 		ASTNode* prod = new ASTNode("*");
 		prod->left = secx;
@@ -476,10 +478,10 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "csc") // csc → -1 * csc(x) * cot(x)
 	{
 		ASTNode* cscx = new ASTNode("csc");
-		cscx->left = node->left;
+		cscx->left = copyTree(node->left);
 
 		ASTNode* cotx = new ASTNode("cot");
-		cotx->left = node->left;
+		cotx->left = copyTree(node->left);
 
 		ASTNode* prod = new ASTNode("*");
 		prod->left = cscx;
@@ -499,7 +501,7 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 	else if (node->value == "cot") // cot → -1 / sin^2(x)
 	{
 		ASTNode* csc = new ASTNode("csc");
-		csc->left = node->left;
+		csc->left = copyTree(node->left);
 
 		ASTNode* pow = new ASTNode("^");
 		pow->left = csc;
@@ -528,6 +530,190 @@ ASTNode* TangentToCurve::chainRule(ASTNode* node) // f'(g(x))*g'(x) for trigno f
 		chain->right = Differentiate(node->right);
 		return chain;
 	}
+	// d/dx asec(x) = 1 / (|x| * sqrt(x^2 - 1))
+	else if (node->value == "asec")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* sub = new ASTNode("-");
+		sub->left = pow;
+		sub->right = new ASTNode("1");
+		ASTNode* sq = new ASTNode("sqrt");
+		sq->left = sub;
+		ASTNode* mul = new ASTNode("*");
+		mul->left = copyTree(node->left);
+		mul->right = sq;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("1");
+		div->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx acsc(x) = -1 / (|x| * sqrt(x^2 - 1))
+	else if (node->value == "acsc")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* sub = new ASTNode("-");
+		sub->left = pow;
+		sub->right = new ASTNode("1");
+		ASTNode* sq = new ASTNode("sqrt");
+		sq->left = sub;
+		ASTNode* mul = new ASTNode("*");
+		mul->left = copyTree(node->left);
+		mul->right = sq;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("-1");
+		div->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx acot(x) = -1 / (1 + x^2)
+	else if (node->value == "acot")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* add = new ASTNode("+");
+		add->left = new ASTNode("1");
+		add->right = pow;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("-1");
+		div->right = add;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx sech(x) = -sech(x)*tanh(x)
+	else if (node->value == "sech")
+	{
+		ASTNode* sech = new ASTNode("sech");
+		sech->left = copyTree(node->left);
+		ASTNode* tanh = new ASTNode("tanh");
+		tanh->left = copyTree(node->left);
+		ASTNode* mul = new ASTNode("*");
+		mul->left = sech;
+		mul->right = tanh;
+		ASTNode* neg = new ASTNode("*");
+		neg->left = new ASTNode("-1");
+		neg->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = neg;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx csch(x) = -csch(x)*coth(x)
+	else if (node->value == "csch")
+	{
+		ASTNode* csch = new ASTNode("csch");
+		csch->left = copyTree(node->left);
+		ASTNode* coth = new ASTNode("coth");
+		coth->left = copyTree(node->left);
+		ASTNode* mul = new ASTNode("*");
+		mul->left = csch;
+		mul->right = coth;
+		ASTNode* neg = new ASTNode("*");
+		neg->left = new ASTNode("-1");
+		neg->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = neg;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx coth(x) = -csch^2(x)
+	else if (node->value == "coth")
+	{
+		ASTNode* csch = new ASTNode("csch");
+		csch->left = copyTree(node->left);
+		ASTNode* pow = new ASTNode("^");
+		pow->left = csch;
+		pow->right = new ASTNode("2");
+		ASTNode* neg = new ASTNode("*");
+		neg->left = new ASTNode("-1");
+		neg->right = pow;
+		ASTNode* res = new ASTNode("*");
+		res->left = neg;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx asech(x) = -1 / (x * sqrt(1 - x^2))
+	else if (node->value == "asech")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* sub = new ASTNode("-");
+		sub->left = new ASTNode("1");
+		sub->right = pow;
+		ASTNode* sq = new ASTNode("sqrt");
+		sq->left = sub;
+		ASTNode* mul = new ASTNode("*");
+		mul->left = copyTree(node->left);
+		mul->right = sq;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("-1");
+		div->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx acsch(x) = -1 / (|x| * sqrt(1 + x^2))
+	else if (node->value == "acsch")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* add = new ASTNode("+");
+		add->left = new ASTNode("1");
+		add->right = pow;
+		ASTNode* sq = new ASTNode("sqrt");
+		sq->left = add;
+		ASTNode* mul = new ASTNode("*");
+		mul->left = copyTree(node->left);
+		mul->right = sq;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("-1");
+		div->right = mul;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx acoth(x) = 1 / (1 - x^2)
+	else if (node->value == "acoth")
+	{
+		ASTNode* pow = new ASTNode("^");
+		pow->left = copyTree(node->left);
+		pow->right = new ASTNode("2");
+		ASTNode* sub = new ASTNode("-");
+		sub->left = new ASTNode("1");
+		sub->right = pow;
+		ASTNode* div = new ASTNode("/");
+		div->left = new ASTNode("1");
+		div->right = sub;
+		ASTNode* res = new ASTNode("*");
+		res->left = div;
+		res->right = Differentiate(node->left);
+		return res;
+		}
+		// d/dx exp(x) = exp(x)
+	else if (node->value == "exp")
+	{
+		ASTNode* ex = new ASTNode("exp");
+		ex->left = copyTree(node->left);
+		ASTNode* res = new ASTNode("*");
+		res->left = ex;
+		res->right = Differentiate(node->left);
+		return res;
+		}
 
 	return new ASTNode("0"); // unknown function — treat as constant
 }

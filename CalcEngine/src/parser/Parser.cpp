@@ -30,6 +30,8 @@ ASTNode* Parser::parse()
 
 ASTNode* Parser::parseExpression() //— handles + and -(lowest precedence)
 {
+	if (!left) return nullptr;
+
 	ASTNode* left = parseTerm();
 
 	if (pos >= token.size()) {
@@ -54,6 +56,8 @@ ASTNode* Parser::parseExpression() //— handles + and -(lowest precedence)
 }
 ASTNode* Parser::parseTerm() // — handles * and /
 {
+	if (!left) return nullptr;
+
 	ASTNode* left = parsePower();
 
 	if (pos >= token.size()) {
@@ -77,6 +81,8 @@ ASTNode* Parser::parseTerm() // — handles * and /
 }
 ASTNode* Parser::parsePower()
 {
+	if (!left) return nullptr;
+
 	ASTNode* left = parsePrimary();
 	if (pos >= token.size()) {
 		return left;
@@ -142,11 +148,22 @@ bool Parser::isValidFunction(string name)
 {
 
 	vector<string> valid = {
+		// trig
 		"sin", "cos", "tan",
+		"sec", "csc", "cot",
+		// inverse trig
 		"asin", "acos", "atan",
+		"asec", "acsc", "acot",
+		// hyperbolic
 		"sinh", "cosh", "tanh",
+		"sech", "csch", "coth",
+		// inverse hyperbolic
 		"asinh", "acosh", "atanh",
-		"ln", "log", "sqrt" , "e"
+		"asech", "acsch", "acoth",
+		// log / misc
+		"ln", "log", "sqrt", "exp",
+		// constants
+		"e"
 	};
 
 	for (string s : valid) {

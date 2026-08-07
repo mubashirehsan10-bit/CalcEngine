@@ -252,7 +252,7 @@ void Graph::plotCurve(sf::RenderWindow& w, ASTNode* node,
             double y = Evaluator(node, x).Result();
             if (!std::isfinite(y)) { prev = false; prevY = 1e18; continue; }
 
-            if (prev && std::abs(y - prevY) > (yMx - yMn) * 2.0) {
+            if (prev && std::abs(y - prevY) > std::max((yMx - yMn) * 0.3, 1.0)) {
                 if (pts.size() > 1)
                     w.draw(pts.data(), pts.size(), sf::PrimitiveType::LineStrip);
                 pts.clear(); prev = false;

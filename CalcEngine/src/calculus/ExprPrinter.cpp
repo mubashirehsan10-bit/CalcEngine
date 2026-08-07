@@ -1,4 +1,4 @@
-﻿#include "ExprPrinter.h"
+#include "ExprPrinter.h"
 #include <cmath>
 #include <set>
 #include <sstream>
@@ -19,9 +19,9 @@ bool ExprPrinter::isFunction(const std::string& val)
 {
     static const std::set<std::string> fns = {
         "sin","cos","tan","sec","csc","cot",
-        "asin","acos","atan",
-        "sinh","cosh","tanh",
-        "asinh","acosh","atanh",
+        "asin","acos","atan","asec","acsc","acot",
+        "sinh","cosh","tanh","sech","csch","coth",
+        "asinh","acosh","atanh","asech","acsch","acoth",
         "ln","log","sqrt","exp"
     };
     return fns.count(val) > 0;
