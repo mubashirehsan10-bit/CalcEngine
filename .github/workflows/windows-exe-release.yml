@@ -1,0 +1,84 @@
+name: Release Windows EXE
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows-exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install SFML 3.0.2 (project-compatible path)
+        shell: pwsh
+        run: |
+          $sfmlRoot = "C:\Users\HP\OneDrive\Documents\SFML-3.0.2"
+          if (-not (Test-Path $sfmlRoot)) {
+            New-Item -ItemType Directory -Path $sfmlRoot -Force | Out-Null
+            $zipPath = "$env:RUNNER_TEMP\sfml-3.0.2.zip"
+            Invoke-WebRequest -Uri "https://github.com/SFML/SFML/releases/download/3.0.2/SFML-3.0.2-windows-vc17-64-bit.zip" -OutFile $zipPath
+            Expand-Archive -Path $zipPath -DestinationPath "$env:RUNNER_TEMP\sfml-extract" -Force
+            Copy-Item -Path "$env:RUNNER_TEMP\sfml-extract\SFML-3.0.2\*" -Destination $sfmlRoot -Recurse -Force
+          }
+
+      - name: Build project (auto-detect)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if (Test-Path ".\CalcEngine.sln") {
+            msbuild ".\CalcEngine.sln" /p:Configuration=Release /p:Platform=x64
+          }
+          elseif (Test-Path ".\CMakeLists.txt") {
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+            cmake --build build --config Release
+          }
+          else {
+            $cppFiles = Get-ChildItem -Path . -Recurse -Filter *.cpp | ForEach-Object { $_.FullName }
+            if (-not $cppFiles -or $cppFiles.Count -eq 0) {
+              throw "No supported build input found (.sln, CMakeLists.txt, or .cpp files)."
+            }
+            cl /EHsc /std:c++17 /Fe:CalcEngine.exe $cppFiles
+          }
+
+      - name: Collect EXE
+        shell: pwsh
+        run: |
+          $releaseDir = Join-Path $env:RUNNER_TEMP "release"
+          New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+          $exe = Get-ChildItem -Path . -Recurse -Filter CalcEngine.exe | Where-Object { $_.FullName -notmatch "\\(packages|vcpkg_installed|build\\_deps)\\" } | Select-Object -First 1
+          if (-not $exe) {
+            $exe = Get-ChildItem -Path . -Recurse -Filter *.exe | Where-Object { $_.Name -eq "CalcEngine.exe" } | Select-Object -First 1
+          }
+          if (-not $exe) {
+            throw "CalcEngine.exe was not found after build."
+          }
+          Copy-Item $exe.FullName (Join-Path $releaseDir "CalcEngine.exe") -Force
+
+      - name: Create release (if missing) and upload EXE
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          ASSET_PATH="${RUNNER_TEMP}/release/CalcEngine.exe"
+
+          if ! gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release create "$TAG" "$ASSET_PATH" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "$TAG" \
+              --generate-notes
+          else
+            gh release upload "$TAG" "$ASSET_PATH" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+          fi
