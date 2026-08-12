@@ -32,7 +32,7 @@ No math libraries were used for the core engine. No AI autocomplete. Just C++, O
 <p align="center">
   <img src="ss4.png" alt="Graph Plotting - Zoom & Pan" width="700"/>
   <br/>
-  <em>Hyperolic Functions and there Graphs</em>
+  <em>Exponential Functions and there Graphs</em>
 </p>
 
 ---
