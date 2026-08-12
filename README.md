@@ -9,6 +9,32 @@ CalcEngine is a Windows desktop application that parses, evaluates, differentiat
 
 No math libraries were used for the core engine. No AI autocomplete. Just C++, OOP, and first principles.
 
+## Screenshots
+
+<p align="center">
+  <img src="ss1.png" alt="Console UI - Main Menu" width="700"/>
+  <br/>
+  <em>Main menu / console interface</em>
+</p>
+
+<p align="center">
+  <img src="ss2.png" alt="Derivative Output" width="700"/>
+  <br/>
+  <em>Symbolic differentiation output</em>
+</p>
+
+<p align="center">
+  <img src="ss3.png" alt="Integration Graph" width="700"/>
+  <br/>
+  <em>Integration with shaded region and dashed limit lines</em>
+</p>
+
+<p align="center">
+  <img src="ss4.png" alt="Graph Plotting - Zoom & Pan" width="700"/>
+  <br/>
+  <em>GUI graph plotting with zoom/pan and crosshair</em>
+</p>
+
 ---
 
 ## Features
