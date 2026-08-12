@@ -14,7 +14,7 @@ No math libraries were used for the core engine. No AI autocomplete. Just C++, O
 <p align="center">
   <img src="ss1.png" alt="Console UI - Main Menu" width="700"/>
   <br/>
-  <em>Main menu / console interface</em>
+  <em>Integration with shaded region and dashed limit lines</em>
 </p>
 
 <p align="center">
@@ -26,13 +26,13 @@ No math libraries were used for the core engine. No AI autocomplete. Just C++, O
 <p align="center">
   <img src="ss3.png" alt="Integration Graph" width="700"/>
   <br/>
-  <em>Integration with shaded region and dashed limit lines</em>
+  <em>Another Example</em>
 </p>
 
 <p align="center">
   <img src="ss4.png" alt="Graph Plotting - Zoom & Pan" width="700"/>
   <br/>
-  <em>GUI graph plotting with zoom/pan and crosshair</em>
+  <em>Hyperolic Functions and there Graphs</em>
 </p>
 
 ---
