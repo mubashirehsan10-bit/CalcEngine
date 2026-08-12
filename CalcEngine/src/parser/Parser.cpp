@@ -147,23 +147,51 @@ ASTNode* Parser::parsePrimary() // — handles numbers, variables, functions, pare
 bool Parser::isValidFunction(string name) 
 {
 
-	vector<string> valid = {
-		// trig
-		"sin", "cos", "tan",
-		"sec", "csc", "cot",
-		// inverse trig
-		"asin", "acos", "atan",
-		"asec", "acsc", "acot",
-		// hyperbolic
-		"sinh", "cosh", "tanh",
-		"sech", "csch", "coth",
-		// inverse hyperbolic
-		"asinh", "acosh", "atanh",
-		"asech", "acsch", "acoth",
-		// log / misc
-		"ln", "log", "sqrt", "exp",
-		// constants
-		"e"
+	vector<string> valid =
+	{
+
+		"sin",
+		"cos",
+		"tan",
+
+		"sec",
+		"csc",
+		"cosec",
+		"cot",
+
+		"asin",
+		"acos",
+		"atan",
+
+		"asec",
+		"acsc",
+		"acot",
+
+		"sinh",
+		"cosh",
+		"tanh",
+
+		"sech",
+		"csch",
+		"cosech",
+		"coth",
+
+		"asinh",
+		"acosh",
+		"atanh",
+
+		"asech",
+		"acsch",
+		"acosech",
+		"acoth",
+
+		"ln",
+		"log",
+		"sqrt",
+		"exp",
+
+		"e",
+		"pi"
 	};
 
 	for (string s : valid) {
