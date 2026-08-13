@@ -26,7 +26,7 @@ No math libraries were used for the core engine. No AI autocomplete. Just C++, O
 <p align="center">
   <img src="ss3.png" alt="Integration Graph" width="700"/>
   <br/>
-  <em>Another Example</em>
+  <em>Limit Defining Graph and Asymptotes</em>
 </p>
 
 <p align="center">
