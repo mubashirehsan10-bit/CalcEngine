@@ -35,6 +35,18 @@ No math libraries were used for the core engine. No AI autocomplete. Just C++, O
   <em>Exponential Functions and there Graphs / Chain Rule</em>
 </p>
 
+<p align="center">
+  <img src="ss5.png" alt="Graph Plotting - Zoom & Pan" width="700"/>
+  <br/>
+  <em>Hyperolic Functions with variations</em>
+</p>
+
+<p align="center">
+  <img src="ss6.png" alt="Graph Plotting - Zoom & Pan" width="700"/>
+  <br/>
+  <em>Essence in the exponential Graph</em>
+</p>
+
 ---
 
 ## Features
